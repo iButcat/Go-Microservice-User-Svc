@@ -62,11 +62,10 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (request interface
 
 func decodeUpdateUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
   var req = UpdateUserRequest{}
-  vars := mux.Vars(r)
-  req = UpdateUserRequest{
-    Id: vars["id"],
-  }
-  return "", nil
+  if err := json.NewDecoder(r.Body).Decode(&req.user); err != nil {
+      return nil, err
+    }
+  return req, nil
 }
 
 func decodeDeleteUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
@@ -75,7 +74,7 @@ func decodeDeleteUserRequest(_ context.Context, r *http.Request) (request interf
   req = DeleteUserRequest{
     Id: vars["id"],
   }
-  return "", nil
+  return req, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

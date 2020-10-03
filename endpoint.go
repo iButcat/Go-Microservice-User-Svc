@@ -45,9 +45,10 @@ func MakeGetUserEndpoint(service Service) endpoint.Endpoint {
 func MakeUpdateUserEndpoint(service Service) endpoint.Endpoint {
   return func(ctx context.Context, request interface{}) (response interface{}, err error) {
     req := request.(UpdateUserRequest)
-    email, err := service.UpdateUser(ctx, req.Id)
+    msg, err := service.UpdateUser(ctx, req.user)
     return UpdateUserResponse{
-      Email: email,
+      Msg: msg,
+      Err: err,
     }, err
   }
 }
@@ -55,10 +56,17 @@ func MakeUpdateUserEndpoint(service Service) endpoint.Endpoint {
 func MakeDeleteUserEndpoint(service Service) endpoint.Endpoint {
   return func(ctx context.Context, request interface{}) (response interface{}, err error) {
     req := request.(DeleteUserRequest)
-    email, err := service.DeleteUser(ctx, req.Id)
-    return DeleteUserResponse{
-      Email: email,
+    msg, err := service.DeleteUser(ctx, req.Id)
+    if err != nil {
+      return DeleteUserResponse{
+        Msg: msg,
+        Err: err,
+      }, nil
     }
+    return DeleteUserResponse{
+      Msg: msg,
+      Err: err,
+    }, nil
   }
 }
 
@@ -83,12 +91,12 @@ type (
   }
 
   UpdateUserRequest struct {
-    Id string `json:"id"`
+    user User
   }
 
   UpdateUserResponse struct {
-    Email string `json:"email"`
-    Err error `json:"-"`
+    Msg string `json:"response"`
+    Err error `json:"error, omitempty"`
   }
 
   DeleteUserRequest struct {
@@ -96,6 +104,7 @@ type (
   }
 
   DeleteUserResponse struct {
-    Email string `json:"email"`
+    Msg string `json:"response"`
+    Err error `json:"error, omitempty"`
   }
 )

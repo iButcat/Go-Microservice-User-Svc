@@ -31,7 +31,7 @@ func main() {
   var db *gorm.DB
   {
     var err error
-    dsn := ""
+    dsn := "user=ibutcat password=dEEp#Xx678 dbname=foot port=5432 sslmode=disable"
 
     db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {

@@ -34,13 +34,12 @@ func (repo *repo) GetUser(ctx context.Context, id string) (string, error) {
   return email, nil
 }
 
-func (repo *repo) UpdateUser(ctx context.Context, id string) (string, error) {
-  var email string
-  _ = repo.db.Raw("UPDATE users SET email=email WHERE id=id", email, id)
-  return email, nil
+func (repo *repo) UpdateUser(ctx context.Context, user User) (string, error) {
+  _ = repo.db.Raw("UPDATE users as u SET c.Email=?, c.Password=? WHERE u.Id = ?", user.Email, user.Password, user.Id)
+  return "successfully updated", nil
 }
 
 func(repo *repo) DeleteUser(ctx context.Context, id string) (string, error) {
-  _ = repo.db.Delete(&user, "id=id")
-  return "", nil
+  _ = repo.db.Exec("DELETE FROM users WHERE id= ?", id)
+  return "Succesfully deleted", nil
 }
