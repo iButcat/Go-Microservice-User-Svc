@@ -35,7 +35,7 @@ func (repo *repo) GetUser(ctx context.Context, id string) (string, error) {
 }
 
 func (repo *repo) UpdateUser(ctx context.Context, user User) (string, error) {
-  _ = repo.db.Raw("UPDATE users as u SET c.Email=?, c.Password=? WHERE u.Id = ?", user.Email, user.Password, user.Id)
+  _ = repo.db.Exec("UPDATE users SET email=?, password=? WHERE id = ?", user.Email, user.Password, user.Id)
   return "successfully updated", nil
 }
 
