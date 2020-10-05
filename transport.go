@@ -27,7 +27,7 @@ func MakeHTTPHandler(service Service, logger log.Logger) http.Handler {
     encodeResponse,
     ))
 
-  r.Methods("PUT").Path("/user/{id}").Handler(httptransport.NewServer(
+  r.Methods("PUT").Path("/user/update").Handler(httptransport.NewServer(
     e.UpdateUserEndpoint,
     decodeUpdateUserRequest,
     encodeResponse,
