@@ -8,7 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"usersvc/usersvc" // internal pkg
+	// internal pkg
+	config2 "usersvc/config"
+	"usersvc/usersvc"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -18,8 +20,13 @@ import (
 )
 
 func main() {
+	config, err := config2.LoadConfig("./config")
+	if err != nil {
+		fmt.Print(err)
+	}
+
 	var (
-		httpAddr = flag.String("http.addr", ":8080", "HTTP listen address")
+		httpAddr = flag.String("http.addr", config.Port, "HTTP listen address")
 	)
 	flag.Parse()
 
@@ -33,9 +40,8 @@ func main() {
 	var db *gorm.DB
 	{
 		var err error
-		dsn := "user= password= dbname= port=5432 sslmode=disable"
 
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		db, err = gorm.Open(postgres.Open(config.DSN), &gorm.Config{})
 		if err != nil {
 			level.Error(logger).Log("exit", err)
 			os.Exit(1)
