@@ -9,6 +9,7 @@ import (
 type Endpoints struct {
 	CreateUserEndpoint endpoint.Endpoint
 	GetUserEndpoint    endpoint.Endpoint
+	GetAllUsersEndpoint endpoint.Endpoint
 	UpdateUserEndpoint endpoint.Endpoint
 	DeleteUserEndpoint endpoint.Endpoint
 }
@@ -17,6 +18,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
 		CreateUserEndpoint: MakeCreateUserEndpoint(s),
 		GetUserEndpoint:    MakeGetUserEndpoint(s),
+		GetAllUsersEndpoint: MakeGetAllUsersEndpoint(s),
 		UpdateUserEndpoint: MakeUpdateUserEndpoint(s),
 		DeleteUserEndpoint: MakeDeleteUserEndpoint(s),
 	}
@@ -43,6 +45,16 @@ func MakeGetUserEndpoint(service Service) endpoint.Endpoint {
 	}
 }
 
+func MakeGetAllUsersEndpoint(service Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		allUsers, err := service.GetAllUsers(ctx)
+		return GetAllUsersResponse{
+			AllUsers: allUsers,
+			Err: err,
+		}, nil
+	}
+}
+
 func MakeUpdateUserEndpoint(service Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(UpdateUserRequest)
@@ -58,12 +70,6 @@ func MakeDeleteUserEndpoint(service Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DeleteUserRequest)
 		msg, err := service.DeleteUser(ctx, req.Id)
-		if err != nil {
-			return DeleteUserResponse{
-				Msg: msg,
-				Err: err,
-			}, nil
-		}
 		return DeleteUserResponse{
 			Msg: msg,
 			Err: err,
@@ -91,13 +97,20 @@ type (
 		Err   error  `json:"-"`
 	}
 
+	GetAllUsersRequest struct {}
+
+	GetAllUsersResponse struct {
+		AllUsers []User `json:"users"`
+		Err error `json:"error,omitempty"`
+	}
+
 	UpdateUserRequest struct {
 		user User
 	}
 
 	UpdateUserResponse struct {
 		Msg string `json:"response"`
-		Err error  `json:"error, omitempty"`
+		Err error  `json:"error,omitempty"`
 	}
 
 	DeleteUserRequest struct {
@@ -106,6 +119,6 @@ type (
 
 	DeleteUserResponse struct {
 		Msg string `json:"response"`
-		Err error  `json:"error, omitempty"`
+		Err error  `json:"error,omitempty"`
 	}
 )

@@ -2,6 +2,7 @@ package usersvc
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-kit/kit/log"
 	"gorm.io/gorm"
@@ -23,6 +24,11 @@ func (repo *repo) CreateUser(ctx context.Context, user User) (string, error) {
 	if user.Email == "" || user.Password == "" {
 		return "Empty", nil
 	}
+
+	if err := repo.db.Model(&user).Error; err != nil {
+		return "", err
+	}
+
 	_ = repo.db.AutoMigrate(&user)
 
 	if err := repo.db.Create(&user).Error; err != nil {
@@ -33,10 +39,23 @@ func (repo *repo) CreateUser(ctx context.Context, user User) (string, error) {
 
 func (repo *repo) GetUser(ctx context.Context, id string) (string, error) {
 	var email string
-	if err := repo.db.Raw("SELECT email FROM users WHERE id=id", id).Scan(&email).Error; err != nil {
-		return "Not Found", err
+	if len(id) > 0 {
+		if err := repo.db.Where("id = ?", id).First(&email, id).Error; err != nil {
+			errors.Is(err, gorm.ErrRecordNotFound)
+			return "Not Found", err
+		}
+	} else {
+		return "Repo need a correct ID", nil
 	}
 	return email, nil
+}
+
+func (repo *repo) GetAllUsers(ctx context.Context) ([]User, error) {
+	var allUsers []User
+	if err := repo.db.Raw("SELECT * FROM users").Scan(&allUsers).Error; err != nil {
+		return nil, err
+	}
+	return allUsers, nil
 }
 
 func (repo *repo) UpdateUser(ctx context.Context, user User) (string, error) {

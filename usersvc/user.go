@@ -13,6 +13,7 @@ type User struct {
 type Repository interface {
   CreateUser(ctx context.Context, user User) (string, error)
   GetUser(ctx context.Context, id string) (string, error)
+  GetAllUsers(ctx context.Context) ([]User, error)
   UpdateUser(ctx context.Context, user User) (string, error)
   DeleteUser(ctx context.Context, id string) (string, error)
 }

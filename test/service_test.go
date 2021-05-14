@@ -8,15 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetUserNotFound(t *testing.T) {
-	service, ctx := setup()
-	getUserNotFound, err := service.GetUser(ctx, "0")
-	if err != nil {
-		t.Errorf("Error: %s", err)
-	}
-	assert.Nil(t, getUserNotFound, "Not found")
-}
-
 func TestCreateUser(t *testing.T) {
 	email := "test@test.com"
 	password := "12345"
@@ -36,6 +27,33 @@ func TestGetUser(t *testing.T) {
 		t.Errorf("Error: %s", err)
 	}
 	assert.Equal(t, "test@test.com", getUser)
+}
+
+func TestGetUserNotFound(t *testing.T) {
+	service, ctx := setup()
+	getUserNotFound, err := service.GetUser(ctx, "abc")
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+	assert.Equal(t, getUserNotFound, "Not Found")
+}
+
+func TestGetUserNoID(t *testing.T) {
+	service, ctx := setup()
+	getUserNoID, err := service.GetUser(ctx, "")
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+	assert.Equal(t, getUserNoID, "Repo need a correct ID")
+}
+
+func TestGetAllUsers(t *testing.T) {
+	service, ctx := setup()
+	getAllUsers, err := service.GetAllUsers(ctx)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+	assert.NotEmpty(t, getAllUsers)
 }
 
 func TestUpdateUser(t *testing.T) {
