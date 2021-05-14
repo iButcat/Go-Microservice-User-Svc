@@ -2,13 +2,12 @@ package usersvc
 
 import (
   "context"
-  "net/http"
   "encoding/json"
+  "net/http"
 
   "github.com/go-kit/kit/log"
+  httptransport "github.com/go-kit/kit/transport/http"
   "github.com/gorilla/mux"
-	httptransport "github.com/go-kit/kit/transport/http"
-
 )
 
 func MakeHTTPHandler(service Service, logger log.Logger) http.Handler {
@@ -24,6 +23,12 @@ func MakeHTTPHandler(service Service, logger log.Logger) http.Handler {
   r.Methods("GET").Path("/user/{id}").Handler(httptransport.NewServer(
     e.GetUserEndpoint,
     decodeGetUserRequest,
+    encodeResponse,
+    ))
+
+  r.Methods("GET").Path("/users").Handler(httptransport.NewServer(
+    e.GetAllUsersEndpoint,
+    decodeGetAllUsersEnpdoint,
     encodeResponse,
     ))
 
@@ -58,6 +63,11 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (request interface
     Id: vars["id"],
   }
 	return req, nil
+}
+
+func decodeGetAllUsersEnpdoint(_ context.Context, r *http.Request) (request interface{}, err error) {
+  var req = GetAllUsersRequest{}
+  return req, nil
 }
 
 func decodeUpdateUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
